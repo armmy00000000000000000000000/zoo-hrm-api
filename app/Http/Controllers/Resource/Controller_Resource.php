@@ -24,24 +24,132 @@ class Controller_Resource extends Controller
 ///    /**     * ดึงข้อมูลagency    
         public function getAll_agency()
         {
-            $agencies = model_agency::all();  // ใช้ Eloquent ดึงข้อมูลทั้งหมด
+            $model = new model_agency();  // ใช้ Eloquent ดึงข้อมูลทั้งหมด
+            $agencies = $model->getAll_agency();  // เรียกใช้ method getAll_agency จาก model_agency
 
-            if ($agencies->isEmpty()) {
+            if (empty($agencies)) {
                 return $this->response->error('ไม่พบข้อมูลสำหรับ agency', 404);
+            } else {
+                return $this->response->success($agencies, 'ดึงข้อมูลหน่วยงานสำเร็จ');
             }
-
-            return $this->response->success($agencies, 'ดึงข้อมูลหน่วยงานสำเร็จ');
+           
         }
 
         public function Addagency(Request $request)
         {
-            $agency = model_agency::create([
-                'name' => $request->input('name'),
-                'detail' => $request->input('detail')
-            ]);
+            $model = new model_agency();
+            $result = $model->Addagency($request);
 
-            return $this->response->success($agency, 'เพิ่มหน่วยงานสำเร็จ');
+            if ($result === true) {
+                return $this->response->success([], 'เพิ่มหน่วยงานสำเร็จ', 201);
+            } elseif ($result === 'duplicate') {
+                return $this->response->error('ชื่อหน่วยงานนี้ถูกใช้ไปแล้ว', 409);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 500);
+            }
         }
+
+        public function getID_agency($id)
+        {
+            if ($id === null) {
+                return $this->response->error('เกิดข้อผิดพลาด: ไม่พบ Agency ID', 400);
+            }
+            $model = new model_agency();  // ใช้ Eloquent ดึงข้อมูลทั้งหมด
+            $agency = $model->getID_agency($id);  // เรียกใช้ method getID_agency จาก model_agency
+
+            if (empty($agency)) {
+                return $this->response->error('ไม่พบข้อมูลสำหรับ Agency ID ' . $id, 404);
+            } else {
+                return $this->response->success($agency, 'ดึงข้อมูลหน่วยงานสำเร็จ');
+            }
+        }
+
+        public function Add_division(Request $request)
+        {
+            $model = new model_agency();
+            $result = $model->Add_division($request);
+
+            if ($result === true) {
+                return $this->response->success([], 'เพิ่มหน่วยงานสำเร็จ', 201);
+            } elseif ($result === 'duplicate') {
+                return $this->response->error('ชื่อหน่วยงานนี้ถูกใช้ไปแล้ว', 409);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 500);
+            }
+        
+        }
+        public function Add_department(Request $request)
+        {
+            $model = new model_agency();
+            $result = $model->Add_department($request);
+
+            if ($result === true) {
+                return $this->response->success([], 'เพิ่มหน่วยงานสำเร็จ', 201);
+            } elseif ($result === 'duplicate') {
+                return $this->response->error('ชื่อหน่วยงานนี้ถูกใช้ไปแล้ว', 409);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 500);
+            }
+        
+        }
+
+        public function Edit_division(Request $request, $id)
+        {
+            if ($id === null) {
+                return $this->response->error('เกิดข้อผิดพลาด: ไม่พบ Division ID', 400);
+            }
+            $model = new model_agency();
+            $result = $model->Edit_division($request, $id);
+
+            if ($result === true) {
+                return $this->response->success([], 'อัพเดทหน่วยงานสำเร็จ', 200);
+            } elseif ($result === 'not_found') {
+                return $this->response->error('ไม่พบข้อมูลสำหรับ Division ID', 404);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล', 500);
+            }
+        
+         
+        }
+        public function Edit_department(Request $request, $id)
+        {
+            if ($id === null) {
+                return $this->response->error('เกิดข้อผิดพลาด: ไม่พบ department ID', 400);
+            }
+            $model = new model_agency();
+            $result = $model->Edit_department($request, $id);
+
+            if ($result === true) {
+                return $this->response->success([], 'อัพเดทหน่วยงานสำเร็จ', 200);
+            } elseif ($result === 'not_found') {
+                return $this->response->error('ไม่พบข้อมูลสำหรับ department ID', 404);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล', 500);
+            }
+        
+         
+        }
+
+        public function Delete_division($id)
+        {
+            if ($id === null) {
+                return $this->response->error('เกิดข้อผิดพลาด: ไม่พบ Division ID', 400);
+            }
+            $model = new model_agency();
+            $result = $model->Delete_division($id);
+
+            if ($result === true) {
+                return $this->response->success([], 'ลบหน่วยงานสำเร็จ', 200);
+            } elseif ($result === 'not_found') {
+                return $this->response->error('ไม่พบข้อมูลสำหรับ Division ID', 404);
+            } else {
+                return $this->response->error('เกิดข้อผิดพลาดในการลบข้อมูล', 500);
+            }
+        
+         
+        }
+
+
 
 //////// end of recent edits ///
 

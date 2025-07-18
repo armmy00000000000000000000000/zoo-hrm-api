@@ -9,6 +9,12 @@ $router->group(['prefix' => 'hrm/api/v1', 'middleware' => 'auth'], function () u
     /// agency
    $router->get('/list_agency', 'Resource\Controller_Resource@getAll_agency');
    $router->post('/add_agency', 'Resource\Controller_Resource@Addagency');
+   $router->get('/view_agency/{id}', 'Resource\Controller_Resource@getID_agency');
+   $router->post('/add_division', 'Resource\Controller_Resource@Add_division');
+   $router->post('/add_department', 'Resource\Controller_Resource@Add_department');
+   $router->put('/edit_division/{id}', 'Resource\Controller_Resource@Edit_division');
+   $router->put('/edit_department/{id}', 'Resource\Controller_Resource@Edit_department');
+   $router->delete('/delete_division/{id}', 'Resource\Controller_Resource@Delete_division');
    /// User
    $router->get('/list_user', 'Resource\Controller_Resource@getAll_user');
    $router->get('/view_user/{id}', 'Resource\Controller_Resource@getID_user');
