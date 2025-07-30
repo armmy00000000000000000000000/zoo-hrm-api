@@ -7,169 +7,92 @@ use Illuminate\Support\Facades\DB;
 
 class model_jobs extends Model
 {
-public function search_jobs($request)
-{
-    $job_title = trim($request->input('job_title', ''));
-    $agency_id = $request->input('agency_id', null);
-    $job_positions_input = trim($request->input('job_positions', ''));
-    $search_type = $request->input('search_type', 'and'); // 'and' หรือ 'or'
+    public function search_jobs($request)
+    {
+        $job_title = trim($request->input('job_title', ''));
+        $agency_id = $request->input('agency_id', null);
+        $job_positions_input = trim($request->input('job_positions', ''));
 
-    $params = [];
-    $query = "SELECT job.*, agency.name 
-              FROM job 
-              JOIN agency ON job.agency_id = agency.id 
-              WHERE 1=1";
-
-    if ($job_title !== '') {
-        $query .= " AND job.job_title LIKE :like_job_title";
-        $params['like_job_title'] = '%' . $job_title . '%';
-        $params['exact_job_title'] = $job_title;
-        $params['start_job_title'] = $job_title . '%';
-        $params['like_job_title2'] = '%' . $job_title . '%';
-    }
-
-    if (!empty($agency_id)) {
-        $query .= " AND job.agency_id = :agency_id";
-        $params['agency_id'] = $agency_id;
-    }
-
-    // เพิ่มเงื่อนไขสำหรับตำแหน่งงาน
-    if ($job_positions_input !== '') {
-        if ($search_type === 'and' && $job_title !== '') {
-            // AND ทั้งสองต้องตรง: ใช้ EXISTS ตรวจสอบตำแหน่งด้วย
-            $query .= " AND EXISTS (
-                SELECT 1 FROM job_positions jp
-                JOIN position p ON jp.position_code = p.position_id
-                WHERE jp.job_id = job.job_id
-                AND p.position_name LIKE :like_position
-            )";
-            $params['like_position'] = '%' . $job_positions_input . '%';
-        } elseif ($search_type === 'or') {
-            // OR อย่างใดอย่างหนึ่ง: เพิ่มเงื่อนไข OR
-            if ($job_title !== '') {
-                $query .= " OR EXISTS (
-                    SELECT 1 FROM job_positions jp
-                    JOIN position p ON jp.position_code = p.position_id
-                    WHERE jp.job_id = job.job_id
-                    AND p.position_name LIKE :like_position
-                )";
-                $params['like_position'] = '%' . $job_positions_input . '%';
-            } else {
-                // ถ้าไม่มี job_title ให้ค้นหาเฉพาะตำแหน่ง
-                $query .= " AND EXISTS (
-                    SELECT 1 FROM job_positions jp
-                    JOIN position p ON jp.position_code = p.position_id
-                    WHERE jp.job_id = job.job_id
-                    AND p.position_name LIKE :like_position
-                )";
-                $params['like_position'] = '%' . $job_positions_input . '%';
-            }
-        }
-    }
-
-    // ORDER BY job_title ลำดับความสำคัญ
-    if ($job_title !== '') {
-        $query .= " ORDER BY 
-            CASE 
-                WHEN job.job_title = :exact_job_title THEN 1
-                WHEN job.job_title LIKE :start_job_title THEN 2
-                WHEN job.job_title LIKE :like_job_title2 THEN 3
-                ELSE 4
-            END";
-    }
-
-    $jobs = DB::select($query, $params);
-
-    if (empty($jobs)) return [];
-
-    foreach ($jobs as &$job) {
-        $job->agency_name = $job->name;
-        unset($job->name);
-
-        $match_score = 0;
-
-        if ($job_title !== '') {
-            if ($job->job_title === $job_title) {
-                $match_score += 100;
-            } elseif (str_starts_with($job->job_title, $job_title)) {
-                $match_score += 90;
-            } elseif (stripos($job->job_title, $job_title) !== false) {
-                $match_score += 70;
-            }
-        }
-
-        if ($job_positions_input === '') {
-            $positions = DB::select("
-                SELECT 
-                    jp.position_code,
-                    jp.job_position_id,
-                    jp.level,
-                    jp.qualification,
-                    jp.salary,
-                    jp.experience,
-                    jp.status,
-                    d.department_name,
-                    p.position_name
-                FROM job_positions jp
-                JOIN department d ON jp.department = d.department_id
-                JOIN position p ON jp.position_code = p.position_id
-                WHERE jp.job_id = :job_id
-            ", ['job_id' => $job->job_id]);
+        // กรณีพิเศษ ถ้า job_title = "มา" ดึงทั้งหมด
+        if ($job_title === 'มา') {
+            $query = "SELECT job.*, agency.name 
+                      FROM job 
+                      JOIN agency ON job.agency_id = agency.id";
+            $params = [];
         } else {
-            $positions = DB::select("
-                SELECT 
-                    jp.position_code,
-                    jp.job_position_id,
-                    jp.level,
-                    jp.qualification,
-                    jp.salary,
-                    jp.experience,
-                    jp.skills,
-                    jp.status,
-                    d.department_name,
-                    p.position_name
-                FROM job_positions jp
-                JOIN department d ON jp.department = d.department_id
-                JOIN position p ON jp.position_code = p.position_id
-                WHERE jp.job_id = :job_id
-                AND p.position_name LIKE :like_position1
-                ORDER BY 
-                    CASE 
-                        WHEN p.position_name = :exact_position THEN 1
-                        WHEN p.position_name LIKE :start_position THEN 2
-                        WHEN p.position_name LIKE :like_position2 THEN 3
-                        ELSE 4
-                    END
-            ", [
-                'job_id' => $job->job_id,
-                'exact_position' => $job_positions_input,
-                'start_position' => $job_positions_input . '%',
-                'like_position1' => '%' . $job_positions_input . '%',
-                'like_position2' => '%' . $job_positions_input . '%'
-            ]);
+            $query = "SELECT job.*, agency.name 
+                      FROM job 
+                      JOIN agency ON job.agency_id = agency.id 
+                      WHERE 1=1";
+            $params = [];
 
-            foreach ($positions as $pos) {
-                if ($pos->position_name === $job_positions_input) {
-                    $match_score += 100;
-                } elseif (str_starts_with($pos->position_name, $job_positions_input)) {
-                    $match_score += 90;
-                } elseif (stripos($pos->position_name, $job_positions_input) !== false) {
-                    $match_score += 70;
-                }
+            if ($job_title !== '') {
+                $query .= " AND job.job_title LIKE :job_title";
+                $params['job_title'] = '%' . $job_title . '%';
+            }
+
+            if (!empty($agency_id)) {
+                $query .= " AND job.agency_id = :agency_id";
+                $params['agency_id'] = $agency_id;
             }
         }
 
-        $job->job_positions = $positions;
-        $job->match_score = $match_score;
+        $jobs = DB::select($query, $params);
+
+        if (empty($jobs)) return [];
+
+        foreach ($jobs as &$job) {
+            $job->agency_name = $job->name;
+            unset($job->name);
+
+            if ($job_positions_input === '') {
+                // กรณีไม่กรอง position_name
+                $positions = DB::select("
+                    SELECT 
+                        jp.position_code,
+                        jp.job_position_id,
+                        jp.level,
+                        jp.qualification,
+                        jp.salary,
+                        jp.experience,
+                        jp.status,
+                        d.department_name,
+                        p.position_name
+                    FROM job_positions jp
+                    JOIN department d ON jp.department = d.department_id
+                    JOIN position p ON jp.position_code = p.position_id
+                    WHERE jp.job_id = :job_id
+                ", ['job_id' => $job->job_id]);
+            } else {
+                // กรณีกรอง position_name
+                $positions = DB::select("
+                    SELECT 
+                        jp.position_code,
+                        jp.job_position_id,
+                        jp.level,
+                        jp.qualification,
+                        jp.salary,
+                        jp.experience,
+                        jp.skills,
+                        jp.status,
+                        d.department_name,
+                        p.position_name
+                    FROM job_positions jp
+                    JOIN department d ON jp.department = d.department_id
+                    JOIN position p ON jp.position_code = p.position_id
+                    WHERE jp.job_id = :job_id
+                    AND p.position_name LIKE :position_name
+                ", [
+                    'job_id' => $job->job_id,
+                    'position_name' => '%' . $job_positions_input . '%'
+                ]);
+            }
+
+            $job->job_positions = $positions;
+        }
+
+        return $jobs;
     }
-
-    usort($jobs, function ($a, $b) {
-        return $b->match_score <=> $a->match_score;
-    });
-
-    return $jobs;
-}
-
     public function view_jobs($id)
         {
 
