@@ -9,7 +9,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 class uploadDocumentFile extends Model 
 {
-  public function uploadDocumentFile($request, $inputName = 'file')
+  public function uploadDocumentFile($request, $inputName)
 {
     if (!$request->hasFile($inputName)) {
         return response()->json(['message' => 'ไม่พบไฟล์ที่อัปโหลด'], 400);

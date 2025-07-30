@@ -24,9 +24,11 @@ $router->group(['prefix' => 'hrm/api/v1', 'middleware' => 'auth'], function () u
     $router->post('list_of_eligible_candidates', 'RecruitmentOnboarding\Controller_interview_evaluation@list_of_eligible_candidates');
     $router->post('enter_your_score', 'RecruitmentOnboarding\Controller_interview_evaluation@enter_your_score');
     $router->post('create_room', 'RecruitmentOnboarding\Controller_interview_evaluation@create_room');
-    // $router->get('list_of_interviews', 'RecruitmentOnboarding\Controller_interview_evaluation@list_of_interviews');
-    // $router->get('view_of_interviews/{id}', 'RecruitmentOnboarding\Controller_interview_evaluation@view_of_interviews');
-    // $router->put('update_status_interviews/{id}', 'RecruitmentOnboarding\Controller_interview_evaluation@update_status_interviews');
+// ส่วนของระบบลงทะเบียนพนักงานใหม่
+    $router->post('register_new_employee', 'RecruitmentOnboarding\Controller_new_employee_info@register_new_employee');
+    $router->get('getNewEmployee', 'RecruitmentOnboarding\Controller_new_employee_info@getNewEmployee');
+    $router->get('getNewEmployeeInfo/{id}', 'RecruitmentOnboarding\Controller_new_employee_info@getNewEmployeeInfo');
+
 });
 
 
@@ -49,4 +51,6 @@ $router->group(['prefix' => 'hrm/api/v1'], function () use ($router) {
     $router->get('/list_agency', 'Resource\Controller_Resource@getAll_agency');
     $router->post('list_of_eligible_candidates_users', 'RecruitmentOnboarding\Controller_interview_evaluation@list_of_eligible_candidates_users');
     $router->post('vidw_of_eligible_candidates_users', 'RecruitmentOnboarding\Controller_interview_evaluation@vidw_of_eligible_candidates_users');
+    $router->post('the_names_have_been_selected', 'RecruitmentOnboarding\Controller_new_employee_info@the_names_have_been_selected');
+    $router->post('viewthe_names_have_been_selected', 'RecruitmentOnboarding\Controller_new_employee_info@viewthe_names_have_been_selected');
 });
