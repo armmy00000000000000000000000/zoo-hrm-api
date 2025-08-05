@@ -1,0 +1,4 @@
+git status
+git add .
+git commit -m "แก้ไขหน้าแสดงข้อมูลสัตว์ + เพิ่ม API"
+git push
