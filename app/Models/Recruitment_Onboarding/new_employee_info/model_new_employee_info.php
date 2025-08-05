@@ -18,7 +18,7 @@ public function the_names_have_been_selected($request){
 
     $params = [];
 
-    $query = "SELECT job.job_number,exam_announcements.title2, agency.name,exam_announcements.document_path2,exam_announcements.announcement_date2
+    $query = "SELECT job.job_id,job.job_number,exam_announcements.title2, agency.name,exam_announcements.document_path2,exam_announcements.announcement_date2
             FROM job 
             JOIN agency ON job.agency_id = agency.id join exam_announcements ON job.job_id = exam_announcements.job_id
             WHERE 1=1";
