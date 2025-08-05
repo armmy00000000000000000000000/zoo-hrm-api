@@ -1,4 +1,13 @@
+อัพเดท
 git status
 git add .
 git commit -m "แก้ไขหน้าแสดงข้อมูลสัตว์ + เพิ่ม"
 git push
+
+
+
+เพิ่ม
+git remote remove origin           # ถ้ามี origin อยู่แล้ว
+git remote add origin https://github.com/armmy00000000000000000000000/zoo-hrm-api.git
+git branch -M main
+git push -u origin main
