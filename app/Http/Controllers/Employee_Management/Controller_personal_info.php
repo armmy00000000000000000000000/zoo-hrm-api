@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Controllers\personal_info;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Response\Response;  // import Response class ให้ถูกต้อง
+use App\Models\Employee_Management\personal_info\model_personal_info;
+use Illuminate\Support\Facades\Validator;
+
+
+class Controller_personal_info extends Controller
+{
+    protected $response;
+
+    public function __construct()
+    {
+        $this->response = new Response(); 
+    }
+  public function view_personal_info($id)
+    {
+        $model = new model_personal_info();
+        $applicant = $model->view_personal_info($id);
+
+        if (empty($applicant)) {
+            return $this->response->error('No applicant found', 404);
+        }
+
+        return $this->response->success($applicant, 'Applicant retrieved successfully');
+    }
+}
+       
+
+
+
+ 
+

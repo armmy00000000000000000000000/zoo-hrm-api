@@ -8,11 +8,23 @@ $router->get('/', function () use ($router) {
 
 // Define a route for the employee_management page
 $router->group(['prefix' => 'hrm/api/v1', 'middleware' => 'auth'], function () use ($router) {
-    $router->get('getAll/{id}', 'UserController@getAll');
-    $router->get('getID/{id}', 'UserController@getID');
-    $router->post('insertData', 'UserController@addData');
+    /// employee management
+
+    // employee
+    $router->post('list_employee', 'Employee_Management\Controller_employee@list_employee');
+
+    // family_info
+
+
+    // job_and_department
+    
+
+    // personal_info
+    $router->get('view_personal_info/{id}', 'Employee_Management\Controller_personal_info@view_personal_info');
     $router->put('updateData/{id}', 'UserController@updateUser');
-    $router->delete('deleteData/{id}', 'UserController@deleteUser');
-    $router->post('/uploadFile', 'UploadController@upload');
+  
+
+    // work_history
+
 
 });
