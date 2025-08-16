@@ -21,7 +21,7 @@ $router->group(['prefix' => 'hrm/api/v1', 'middleware' => 'auth'], function () u
 
     // personal_info
     $router->get('view_personal_info/{id}', 'Employee_Management\Controller_personal_info@view_personal_info');
-    $router->put('updateData/{id}', 'UserController@updateUser');
+    $router->post('edit_personal_info', 'Employee_Management\Controller_personal_info@update_personal_info');
   
 
     // work_history

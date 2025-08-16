@@ -18,7 +18,7 @@ $router->group(['prefix' => 'hrm/api/v1', 'middleware' => 'auth'], function () u
     $router->post('list_of_job_applicants', 'RecruitmentOnboarding\Controller_application_tracking@list_of_job_applicants');
     $router->post('status_applications', 'RecruitmentOnboarding\Controller_application_tracking@status_applications');
     $router->get('view_of_job_applicants/{id}', 'RecruitmentOnboarding\Controller_application_tracking@view_of_job_applicants');
-    $router->get('find_an_application/{id}', 'RecruitmentOnboarding\Controller_application_tracking@find_an_application');
+    //$router->get('find_an_application-n/{id}', 'RecruitmentOnboarding\Controller_application_tracking@find_an_application');
     // $router->put('update_application_status/{id}', 'RecruitmentOnboarding\Controller_application_tracking@update_application_status');
 // ส่วนของระบบจัดการสอบ/สัมภาษณ์
     $router->post('list_of_eligible_candidates', 'RecruitmentOnboarding\Controller_interview_evaluation@list_of_eligible_candidates');
@@ -48,9 +48,10 @@ $router->group(['prefix' => 'hrm/api/v1'], function () use ($router) {
     $router->post('family_info', 'RecruitmentOnboarding\Controller_application_tracking@family_info');
     $router->get('view_jobs/{id}', 'RecruitmentOnboarding\Controller_Onboarding@view_jobs');
     $router->get('list_position', 'RecruitmentOnboarding\Controller_Onboarding@list_position');
-    $router->get('/list_agency', 'Resource\Controller_Resource@getAll_agency');
+    $router->get('list_agency', 'Resource\Controller_Resource@getAll_agency');
     $router->post('list_of_eligible_candidates_users', 'RecruitmentOnboarding\Controller_interview_evaluation@list_of_eligible_candidates_users');
     $router->post('vidw_of_eligible_candidates_users', 'RecruitmentOnboarding\Controller_interview_evaluation@vidw_of_eligible_candidates_users');
     $router->post('the_names_have_been_selected', 'RecruitmentOnboarding\Controller_new_employee_info@the_names_have_been_selected');
     $router->post('viewthe_names_have_been_selected', 'RecruitmentOnboarding\Controller_new_employee_info@viewthe_names_have_been_selected');
+    $router->get('find_an_application/{id}', 'RecruitmentOnboarding\Controller_application_tracking@find_an_application');
 });

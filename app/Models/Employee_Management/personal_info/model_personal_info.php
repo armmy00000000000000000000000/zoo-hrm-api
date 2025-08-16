@@ -32,6 +32,7 @@ public function view_personal_info($id)
 
     // ตารางย่อยทั้งหมด
     $related_tables = [
+        'employees',
         'work_experience',
         'family_info',
         'typing_skills',
@@ -46,9 +47,20 @@ public function view_personal_info($id)
     $related_data = [];
 
     foreach ($related_tables as $table) {
-        $related_data[$table] = DB::table($table)
-            ->where('application_id', $applicant_id)
-            ->get();
+        if ($table === 'employees') {
+            // JOIN ตาราง agency และ position เฉพาะ employees
+            $related_data[$table] = DB::table('employees as emp')
+                ->join('agency as ag', 'emp.work_location', '=', 'ag.id')
+                ->join('position as po', 'emp.position', '=', 'po.position_id')
+                ->where('emp.application_id', $applicant_id)
+                ->select('emp.*', 'ag.name', 'po.position_name')
+                ->get();
+        } else {
+            // ตารางอื่นๆ ดึงตรงๆ
+            $related_data[$table] = DB::table($table)
+                ->where('application_id', $applicant_id)
+                ->get();
+        }
     }
 
     // รวมทั้งหมดใน array
@@ -58,6 +70,59 @@ public function view_personal_info($id)
         'details' => $related_data
     ]);
 }
+ 
 
 
+
+public function update_personal_info($data)
+{
+    $applicant_id = $data['application_id'];
+  
+    $update_employees = DB::table('employees')
+        ->where('application_id', $applicant_id)
+        ->update([
+            'gender' => $data['gender'],
+            'phone' => $data['phone'],
+            'position' => $data['position'],
+            'employee_type' => $data['employee_type'], 
+            'start_date' => $data['start_date'],
+            'salary' => $data['salary'],
+            'pay_type' => $data['pay_type'],
+            'work_location' => $data['work_location'],
+            'bank_account' => $data['bank_account'],
+            'bank_account_number' => $data['bank_account_number'],
+            'bank_account_name' => $data['bank_account_name'],
+            'prefix' => $data['prefix_th'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'nationality' => $data['nationality']
+        ]);
+
+    $update_applications = DB::table('applications')
+        ->where('application_id', $applicant_id)
+        ->update([
+            'prefix_th' => $data['prefix_th'],
+            'applicant_name' => $data['first_name'] . ' ' . $data['last_name'],
+            'prefix_en' => $data['prefix_en'], 
+            'first_name_en' => $data['first_name_en'],
+            'last_name_en' => $data['last_name_en'],
+            'birth_date' => $data['birth_date'],
+            'nationality' => $data['nationality'],
+            'ethnicity' => $data['ethnicity'],
+            'religion' => $data['religion'],
+            'height_cm' => $data['height_cm'],
+            'weight_kg' => $data['weight_kg'],
+            'marital_status' => $data['marital_status'],
+            'military_status' => $data['military_status'],
+            'has_been_jailed' => $data['has_been_jailed'],
+            'ever_fired' => $data['ever_fired']
+        ]);
+
+    if ($update_employees || $update_applications) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
 }

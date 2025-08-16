@@ -359,23 +359,23 @@ public function list_of_eligible_candidates_users($request){
 
     if (empty($jobs)) return [];
 
-    foreach ($jobs as &$job) {
-        $job->agency_name = $job->name;
-        unset($job->name);
+  foreach ($jobs as &$job) {
+    $job->agency_name = $job->name;
+    unset($job->name);
 
-        $match_score = 0;
+    $job->match_score = 0; // กำหนดเริ่มต้นใน object
 
-        if ($job_title !== '') {
-            if ($job->job_title === $job_title) {
-                $match_score += 100;
-            } elseif (str_starts_with($job->job_title, $job_title)) {
-                $match_score += 90;
-            } elseif (stripos($job->job_title, $job_title) !== false) {
-                $match_score += 70;
-            }
+    if ($job_title !== '') {
+        if ($job->job_title === $job_title) {
+            $job->match_score += 100;
+        } elseif (str_starts_with($job->job_title, $job_title)) {
+            $job->match_score += 90;
+        } elseif (stripos($job->job_title, $job_title) !== false) {
+            $job->match_score += 70;
         }
-
     }
+}
+
 
     // เรียงลำดับตาม match_score สูงสุด
     usort($jobs, function ($a, $b) {
@@ -597,7 +597,36 @@ public function vidw_of_eligible_candidates_users($request){
     return $jobs;
 
     }
-/// ประกาศรายชื่อผู้ที่ได้รับการคัดเลือก
+/// กรอกคะแนนสอบล
+
+  public function enter_your_score($request)
+    {
+        $written_score   = $request->input('written_score');
+        $interview_score = $request->input('interview_score');
+        $application_id  = $request->input('application_id');
+
+        if (!$written_score || !$interview_score || !$application_id) {
+            return false; // หรือ throw exception ตามที่ต้องการ
+        }
+
+        // คำนวณคะแนนรวม
+        $final_score = $written_score + $interview_score;
+
+        // อัพเดทลง database
+        $updated = DB::table('applications')
+            ->where('application_id', $application_id)
+            ->update([
+                'written_score'   => $written_score,
+                'interview_score' => $interview_score,
+                'final_score'     => $final_score
+            ]);
+
+        if ($updated) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 
